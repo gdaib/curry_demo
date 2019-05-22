@@ -41,48 +41,64 @@ const curryAdd = function(a) {
 curryAdd(1)(2)(3); // 6
 ```
 
-但是这样柯里化就太麻烦了，有没有一种比较通用的做法？
-
-导入 **lodash/curry**  就可以对现有函数进行柯里化
-
-```js
-const curryAdd = curry(add);
-
-curryAdd(1)(2)(3); // 6
-```
-
 可以看到，每次我们只传入一个参数，然后返回一个新的函数期待下一个参数。
 
 ### 柯里化的应用
 
 ```js
 // 示意
-class Ajax {
-  constructor() {
-    this.xhr = new XMLHttpRequest()
-  }
-
-  open(type, url, data, callback) {
-    this.onload = function() {
-      callback(this.xhr.responseText, this.xhr.status, this.xhr)
-    }
-    this.xhr.open(type, url, data.async)
-    this.xhr.send(data.params)
-  }
+function ajax(type, url, data) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(type, url, true);
+    xhr.send(data);
 }
-
-// 
-;['get', 'post', 'put', 'delete'].forEach(method => {
-  Ajax.prototype[method] = currying(Ajax.prototype.open, method)
-})
-
-
-
 
 
 // 虽然 ajax 函数比较通用，但在重复调用的时候参数冗余
+ajax('POST', 'http://wwww.test.com', 'name=spaas')
+ajax('POST', 'http://wwww.test2.com', 'name=spaas')
+ajax('POST', 'http://wwww.test3.com', 'name=spaas')
 
+// 利用 curry
+const ajaxCurry = curry(ajax)
+const postAjax = ajaxCurry('POST')
+
+postAjax('http://www.test.com', 'name=spaas')
 ```
+
+curry 这种用途可以理解为，本质上一个降低通用性，提高适用性的
+
+
+还有一种用途是用在 map 等高阶函数里面
+
+```js
+const person = [{name: 'tom'}, {name: 'jeny'}, {name:'john'}]
+```
+
+我们想要获得数组里面的 name, 可能会
+```js
+person.map(item => item.name)
+```
+
+如果我们有 curry 函数:
+```js
+const prop = curry((key, obj) => obj[key])
+```
+
+获取所有的 name
+```js
+// 看代码就清楚，我们是在获取这个数组的 name 值
+person.map(prop('name'))
+```
+
+为了获取一个name值，我们进行了一次封装，这样会不会有点麻烦？
+
+其实不然，prop 函数是可以进行复用的，比如我想取别的数组的 id 列表 `list.map(prop('id'))` 就可以了。
+
+### 参数复用
+```js
+```
+
 
 ### 函数柯里化作用
 
@@ -121,3 +137,7 @@ const curryMul = curry(multiply);
 // 变回一次性传所有值触发机制
 uncurry(curryMul)(2, 10, 20); // 400
 ```
+
+
+参考资料:
+> [JavaScript 专题之函数柯里化](https://juejin.im/post/598d0b7ff265da3e1727c491)

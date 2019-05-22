@@ -22,3 +22,4 @@ const _curryAdd = function(a) {
 };
 
 console.log(_curryAdd(1)(2)(3));
+
