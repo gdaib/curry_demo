@@ -6,8 +6,8 @@ const list = [
   { name: "doomer", element: "timewarp" }
 ];
 
-let hasElement = curry((element, obj) => obj.element === element);
+let hasEleCurry = curry((element, obj) => obj.element === element);
 
-let lightList = list.filter(hasElement("lightning"));
+let lightList = list.filter(hasEleCurry("lightning"));
 
 console.log(lightList);
