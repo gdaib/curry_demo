@@ -1,31 +1,28 @@
 Function.prototype.bind2 = function(context) {
-
-  if (typeof this !== 'function') {
-    throw new Error('Function.prototype.bind - what is trying to be bound is not callable')
-  }
   let args = [].slice.call(arguments, 1),
     fn = this,
-    f = function() {};
+    fONP = function() {};
+  function Bound() {
+    return fn.apply(
+      this instanceof fONP ? {} : context,
+      [].concat(args, [].slice.call(arguments))
+    );
+  }
 
-  let Bound = function() {
-    let bingArgs = args.concat([].slice.call(arguments));
-    return fn.apply(this instanceof f ? this : context, bingArgs);
-  };
+  fONP.prototype = this.prototype;
+  Bound.prototype = new fONP();
 
-  f.prototype = this.prototype
-  Bound.prototype = new f();
   return Bound;
 };
 
-function hello(age, word) {
-  console.log(this.name, " age is ", age, ", he say ", word);
-}
-
-let obj = {
-  name: "cjff"
+const o = {
+  name: "obj"
 };
 
-hello.bind(obj, 20)("hello world");
+function sayHello(word, other) {
+  console.log(this.name, " say ", word, other);
+}
 
+sayHello.bind2(o, "hello world")("  fun call");
 
-new (hello.bind(obj))(20, "hello")
+new (sayHello.bind2(o, "hello world"))("   new call");
